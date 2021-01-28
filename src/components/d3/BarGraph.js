@@ -4,12 +4,37 @@ import * as d3 from "d3";
 
 const BarGraph = ({data}) => {
 
+    let dimensions = {width: 500, height: 500};
+    let margin = {top: 20, right: 20, bottom: 30, left: 40}
+
+    let x = d3.scaleBand()
+    .domain(data)
+    .range([margin.left, dimensions.width - margin.right])
+    .padding(0.1);
+
+    let y = d3.scaleLinear()
+    .domain([d3.min([...data,0], d => d), d3.max(data, d => d)]).nice()
+    .range([dimensions.height - margin.bottom, margin.top]);
+
+    const createBottomAxis = () => {
+        console.log("yes");
+        let xAxis = d3.axisBottom(x).ticks(dimensions.width / 80 ).tickSizeOuter(0);
+        let xTransform = 'translate(0, '  + (dimensions.width - margin.right) + ')';
+
+        const xAxisRef = axis => {
+            axis && xAxis(d3.select(axis));
+        };
+        return (
+            <g transform ={xTransform} ref={xAxisRef}>
+
+            </g>
+        )
+    }
+    /*
     const ref = useD3(
         (svg) => {
-            let dimensions = {width: 500, height: 500};
-            let margin = {top: 20, right: 20, bottom: 30, left: 40}
             let x = d3.scaleBand()
-                .domain(d3.sort(data))
+                .domain(data)
                 .range([margin.left, dimensions.width - margin.right])
                 .padding(0.1);
         
@@ -56,22 +81,22 @@ const BarGraph = ({data}) => {
 
             updateRect.exit()
                 .remove();
-            /*
             svg.append('g')
                 .attr("transform", "translate(0,500)")
                 .call(bAxis);
-            */
         }
     ,[data]);
+    */
 
     return (
         <svg
-            ref = {ref}
             style={{
                 height: 500,
                 width: 500
             }}
-        />
+        >
+            {createBottomAxis()}
+        </svg>
     )
 }
 
