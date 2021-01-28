@@ -4,6 +4,8 @@ import * as d3 from "d3";
 
 const BarGraph = ({data}) => {
 
+    /*
+    *Prior changes not using useD3 hook*
     let dimensions = {width: 500, height: 500};
     let margin = {top: 20, right: 20, bottom: 30, left: 40}
 
@@ -19,7 +21,7 @@ const BarGraph = ({data}) => {
     const createBottomAxis = () => {
         console.log("yes");
         let xAxis = d3.axisBottom(x).ticks(dimensions.width / 80 ).tickSizeOuter(0);
-        let xTransform = 'translate(0, '  + (dimensions.width - margin.right) + ')';
+        let xTransform = 'translate(0, '  + (dimensions.height - margin.bottom) + ')';
 
         const xAxisRef = axis => {
             axis && xAxis(d3.select(axis));
@@ -30,7 +32,7 @@ const BarGraph = ({data}) => {
             </g>
         )
     }
-    /*
+    */
     const ref = useD3(
         (svg) => {
             let x = d3.scaleBand()
@@ -86,18 +88,23 @@ const BarGraph = ({data}) => {
                 .call(bAxis);
         }
     ,[data]);
-    */
-
     return (
         <svg
+            ref={ref}
             style={{
                 height: 500,
                 width: 500
             }}
-        >
-            {createBottomAxis()}
-        </svg>
+        />
     )
+    /*
+    *For prior changes not using D3 Hook*
+                {createBottomAxis()}
+            {data.map((num) => (
+                <rect x={x(num)} width={dimensions.width / (2 * data.length)} y={y(num)} height={y(0) - y(num)} fill="steelblue"/>
+            ))}
+    
+    */
 }
 
 export {BarGraph};
