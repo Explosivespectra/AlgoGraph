@@ -33,6 +33,10 @@ const BarGraph = ({data}) => {
         )
     }
     */
+
+   let dimensions = {width: 500, height: 500};
+   let margin = {top: 20, right: 20, bottom: 30, left: 40}
+
     const ref = useD3(
         (svg) => {
             let x = d3.scaleBand()
@@ -83,9 +87,6 @@ const BarGraph = ({data}) => {
 
             updateRect.exit()
                 .remove();
-            svg.append('g')
-                .attr("transform", "translate(0,500)")
-                .call(bAxis);
         }
     ,[data]);
     return (
