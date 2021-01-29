@@ -73,8 +73,8 @@ const BarGraph = ({data}) => {
                 .selectAll('rect')
                 .data(data);
             updateRect.join("rect")
-                .attr("x", d => x(d) + 20)
-                .attr("width", 40)
+                .attr("x", d => x(d))
+                .attr("width", x.bandwidth())
                 .attr("y", d => y(d))
                 .attr("height", d => y(0) - y(d))
                 .attr("fill", "steelblue");
