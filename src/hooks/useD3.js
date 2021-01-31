@@ -7,7 +7,7 @@ const useD3 = (graphFn, dependencies) => {
     useEffect(() => {
         graphFn(d3.select(d3Ref.current));
         return () => {};
-    }, [dependencies, graphFn]);
+    }, dependencies);
 
     return d3Ref;
 } 
