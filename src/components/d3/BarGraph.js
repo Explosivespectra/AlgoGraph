@@ -2,7 +2,7 @@ import {useD3} from '../../hooks/useD3';
 import React, {useEffect, useRef} from 'react';
 import * as d3 from "d3"; 
 
-const BarGraph = ({data, sortedData, dataChanged}) => {
+const BarGraph = ({data}) => {
     /*
     *Prior changes not using useD3 hook*
     let dimensions = {width: 500, height: 500};
@@ -43,7 +43,7 @@ const BarGraph = ({data, sortedData, dataChanged}) => {
         let x = xScale.current;
         g.attr("transform", `translate(0,${d.height - m.bottom})`)
             .attr("class", "x axis")
-            .call(d3.axisBottom(x).ticks(d.width / 80 ).tickSizeOuter(0))
+            .call(d3.axisBottom(x).ticks(d.width / 80 ).tickSizeOuter(0).tickFormat((d) => {return d.split("-")[0]}));
             /*
             .call(g => g.append("text")
             .attr("x", d.width - m.right)
@@ -100,7 +100,7 @@ const BarGraph = ({data, sortedData, dataChanged}) => {
                 .text("World"));
             */
             xScale.current = d3.scaleBand()
-            .domain(data)
+            .domain(data.map((d, i) => {return d + "-" + i}))
             .range([margin.current.left, dimensions.current.width - margin.current.right])
             .padding(0.1);
 
@@ -115,14 +115,14 @@ const BarGraph = ({data, sortedData, dataChanged}) => {
                 .data(data);
             updateRect.join(
                 enter => {enter.append("rect")
-                    .attr("x", d => x(d))
+                    .attr("x", (d,i) => x(d + "-" + i))
                     .attr("width", x.bandwidth())
                     .attr("y", d => y(d))
                     .attr("height", d => y(0) - y(d))
                     .attr("fill", "steelblue")},
                 update => {
                     update.call(update => update.transition(svg.transition().duration(750))
-                        .attr("x", d => x(d))
+                        .attr("x", (d,i) => x(d + "-" + i))
                         .attr("width", x.bandwidth())
                         .attr("y", d => y(d))
                         .attr("height", d => y(0) - y(d)))},
@@ -137,14 +137,15 @@ const BarGraph = ({data, sortedData, dataChanged}) => {
             else {
                 axis.transition()
                 .duration(750)
-                .call(d3.axisBottom(x).ticks(dimensions.current.width / 80 ).tickSizeOuter(0));
+                .call(d3.axisBottom(x).ticks(dimensions.current.width / 80 ).tickSizeOuter(0).tickFormat((d) => {return d.split("-")[0]}));
             }
             /*
             svg.append("g")
                 .call(yAxis);
             */
         }
-    ,[dataChanged]);
+    ,[data]);
+    /*
     useEffect(() => {
         xScale.current = d3.scaleBand()
         .domain(sortedData)
@@ -170,6 +171,7 @@ const BarGraph = ({data, sortedData, dataChanged}) => {
             .duration(750)
             .call(d3.axisBottom(x).ticks(d.width / 80 ).tickSizeOuter(0));
     },[sortedData]);
+    */
     return (
         <svg
             ref={ref}
