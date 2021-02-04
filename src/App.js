@@ -1,12 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
-import BodyContent from './components/BodyContent'
+import {styles} from './themes.js';
+import {Container, CssBaseline} from '@material-ui/core'
+import {useState} from 'react';
+import {ThemeProvider, createMuiTheme} from '@material-ui/core/styles';
+import BodyContent from './components/BodyContent';
 
-function App() {
+const App = () => {
+
+  const [currentStyle, setStyle] = useState(styles.default);
+
+
   return (
-    <div className="App">
-      <BodyContent/>
-    </div>
+    <ThemeProvider theme={createMuiTheme(currentStyle)}>
+      <CssBaseline/>
+      <Container>
+        <BodyContent styles={styles} setStyle={(styleName) => {setStyle(styles[styleName])}}/>
+      </Container>
+    </ThemeProvider>
   );
 }
 
