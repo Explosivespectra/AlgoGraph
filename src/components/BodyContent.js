@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BarGraph } from './d3/BarGraph';
 import { Button, IconButton, AppBar, Toolbar, Dialog, DialogTitle, DialogActions, DialogContent, Slider, Typography, Grid } from '@material-ui/core'
 import TuneIcon from '@material-ui/icons/Tune';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import ColorLensIcon from '@material-ui/icons/ColorLens';
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme, makeStyles } from '@material-ui/core/styles';
+import { useInterval } from '../hooks/useInterval'
+
+const useStyles = makeStyles(theme => ({
+
+}));
+
+const insertionStep = (arr, ind) => {
+  let x = ind;
+  while ( x > 0 && arr[x] < arr[x - 1]) {
+    let copy = arr[x - 1];
+    arr[x - 1] = arr[x];
+    arr[x] = copy;
+    x--;
+  }
+  return arr;
+}
 
 const NumberDialog = ({ defRange, defCount, isOpen, handleClose, handleConfirm }) => {
 
@@ -39,7 +55,7 @@ const StyleDialog = ({styles, setStyle, isOpen, handleClose}) => {
 			<DialogTitle>Themes</DialogTitle>
 			<DialogContent>
 				{Object.keys(styles).map((styleName) => {
-					return (<Button onClick={() => {setStyle(styleName)}}>{styleName}</Button>)
+					return (<Button key={styleName} onClick={() => {setStyle(styleName)}}>{styleName}</Button>)
 				})}
 			</DialogContent>
 			<DialogActions>
@@ -54,6 +70,9 @@ const BodyContent = ({styles, setStyle}) => {
 	const [count, setCount] = useState(15)
 	const [numDialogOpen, setNumDialog] = useState(false);
 	const [styleDialogOpen, setStyleDialog] = useState(false);
+  const [tick, setTick] = useState(0);
+
+  const ind = useRef(1);
 
 	const theme = useTheme();
 	console.log(theme);
@@ -71,6 +90,26 @@ const BodyContent = ({styles, setStyle}) => {
 		setCount(newCount);
 	}
 
+  const startInterval = () => {
+    ind.current = 1;
+    setTick(1000);
+  }
+
+  const resetInterval = () => {
+    setTick(0);
+    ind.current = 1;
+  }
+
+  useInterval(() => {
+    if (ind.current < dummyData.length) {
+      setDummy(insertionStep([...dummyData],ind.current));
+      ind.current = ind.current + 1;
+    }
+    else {
+      setTick(0);
+    }
+  }, tick);
+
 	return (
 		<>
 			<AppBar position="fixed">
@@ -87,15 +126,18 @@ const BodyContent = ({styles, setStyle}) => {
 				</Toolbar>
 			</AppBar>
 			<Toolbar />
-			<Grid container direction="column" justify="flex-end" alignItems="center">
+			<Grid container direction="row" justify="space-evenly" alignItems="center">
 				<Grid item>
-					<Grid container justify="center" alignItems="center" spacing={1}>
+					<Grid container direction="column" justify="center" alignItems="center" spacing={1}>
 						<Grid item>
-							<Button onClick={() => { setDummy(randomData) }} variant="contained" color="primary">Randomize</Button>
+							<Button onClick={() => { resetInterval(); setDummy(randomData) }} variant="contained" color="primary">Randomize</Button>
 						</Grid>
 						<Grid item>
-							<Button onClick={() => { let newData = [...dummyData]; setDummy(newData.sort((a, b) => a - b)) }} variant="contained" color="primary">Sort</Button>
-						</Grid>					
+							<Button onClick={() => { resetInterval(); let newData = [...dummyData]; setDummy(newData.sort((a, b) => a - b)) }} variant="contained" color="primary">Sort</Button>
+						</Grid>
+						<Grid item>
+							<Button onClick={() => {(tick === 0) ? (setTick(1000)) : (setTick(0))}} variant="contained" color="primary">Begin Sort</Button>
+						</Grid>		
 					</Grid>
 				</Grid>
 				<Grid item>
