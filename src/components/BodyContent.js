@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
 const randomData = (range, count) => {
   let len = count;
   return [...Array(len).keys()].map((num) => {
-    return Math.floor(Math.random() * (range[1] - range[0])) + range[0];
+    return Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
   });
 }
 
@@ -25,7 +25,7 @@ const sortParam = {
     completed: false,
   },
   selection: {
-    pos: 1,
+    pos: 0,
     posSmall: 0,
     ind: 0,
     completed: false,
@@ -68,7 +68,7 @@ const selectionStep = (arr, param) => {
     arr[param.posSmall] = copy;
     param.ind = param.ind + 1;
     param.posSmall = param.ind;
-    param.pos = param.ind + 1;
+    param.pos = param.ind;
   }
   if ( param.ind >= arr.length - 1) {
     param.completed = true;
@@ -152,7 +152,7 @@ const StyleDialog = ({styles, setStyle, isOpen, handleClose}) => {
 }
 const BodyContent = ({styles, setStyle}) => {
 	const [dummyData, setDummy] = useState([16, 4, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 13]);
-	const [range, setRange] = useState([0, 17]);
+	const [range, setRange] = useState([0, 16]);
 	const [count, setCount] = useState(15)
 	const [numDialogOpen, setNumDialog] = useState(false);
   const [styleDialogOpen, setStyleDialog] = useState(false);
@@ -163,6 +163,7 @@ const BodyContent = ({styles, setStyle}) => {
 
   const originalData = useRef([...dummyData]);
   const sortInfo = useRef({...(sortParam.insertion)});
+  const highlightedPos = useRef(null);
 
 	const theme = useTheme();
 	console.log(theme);
@@ -174,22 +175,28 @@ const BodyContent = ({styles, setStyle}) => {
 	}
 
   const startInterval = () => {
-    setTick(900);
+    if (!sortInfo.current.completed) {
+      highlightedPos.current = sortInfo.current.pos;
+      setTick(900);
+    }
   }
 
   const resetInterval = () => {
     setTick(0);
     sortInfo.current = {...(sortParam[sortType])};
+    highlightedPos.current = null;
   }
 
   useInterval(() => {
     if (!sortInfo.current.completed) {
       let result = callSortStep([...dummyData],sortInfo.current,sortType);
-      setDummy(result.arr);
       sortInfo.current = result.param;
+      highlightedPos.current = sortInfo.current.pos;
+      setDummy(result.arr);
     }
     else {
       setTick(0);
+      highlightedPos.current = null;
     }
   }, tick);
 
@@ -238,7 +245,7 @@ const BodyContent = ({styles, setStyle}) => {
 				</Grid>
 				<Grid item>
 					<BarGraph
-						data={dummyData} colors={{ axis: theme.palette.primary.main, bar: theme.palette.primary.main }} />
+						data={dummyData} colors={{ axis: theme.palette.primary.main, bar: theme.palette.primary.main, highlight: theme.palette.primary.light }} highlightedPos = {highlightedPos.current} />
 				</Grid>
 			</Grid>
 			<NumberDialog defRange={range} defCount={count} isOpen={numDialogOpen} handleClose={() => { setNumDialog(false) }} handleConfirm={setNumbers} />

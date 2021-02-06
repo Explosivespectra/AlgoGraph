@@ -2,7 +2,7 @@ import { useD3 } from '../../hooks/useD3';
 import React, { useRef } from 'react';
 import * as d3 from "d3";
 
-const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue" } }) => {
+const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight: "grey" }, highlightedPos = null } ) => {
 	/*
 	*Prior changes not using useD3 hook*
 	let dimensions = {width: 500, height: 500};
@@ -116,6 +116,14 @@ const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue" } }) => {
 
 			const updateRect = svg.selectAll('rect')
 				.data(data);
+
+			console.log(highlightedPos);
+
+			if (highlightedPos !== null && !(updateRect.empty())) {
+				updateRect.filter((d, i) => {return i === highlightedPos})
+					.attr("fill", colors.highlight);
+			}
+
 			updateRect.join(
 				enter => {
 					enter.append("rect")
@@ -126,21 +134,29 @@ const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue" } }) => {
 						.attr("fill", colors.bar)
 				},
 				update => {
-					update.call(update => update.transition(svg.transition().duration(750))
-						.attr("x", (d, i) => x(d + "-" + i))
-						.attr("width", x.bandwidth())
-						.attr("y", d => y(d))
-						.attr("height", d => y(0) - y(d)))
-						.attr("fill", colors.bar)
+					if (highlightedPos !== null) {
+						update.filter((d, i) => {return i === highlightedPos})
+						.attr("fill", colors.highlight);
+					}
+					update.call(update => {
+						update.filter((d, i) => {return i !== highlightedPos})
+							.attr("fill", colors.bar);
+						update.transition(svg.transition().duration(750))
+							.attr("x", (d, i) => x(d + "-" + i))
+							.attr("width", x.bandwidth())
+							.attr("y", d => y(d))
+							.attr("height", d => y(0) - y(d))
+							//.attr("fill", colors.bar)
+					})
 				},
 				exit => {
 					exit.remove()
 				});
-
+			
 			let axis = svg.select("g.x.axis");
 			if (axis.empty()) {
 				svg.append("g")
-					.call(xAxis)
+					.call(xAxis);
 			}
 			else {
 				axis.selectAll("text").attr("fill", colors.axis);
