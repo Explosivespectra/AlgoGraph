@@ -2,7 +2,7 @@ import { useD3 } from '../../hooks/useD3';
 import React, { useRef } from 'react';
 import * as d3 from "d3";
 
-const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight: "grey" }, highlightedPos = null } ) => {
+const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight: "grey" }, highlightedPos = null, animSpeed = 750 }) => {
 	/*
 	*Prior changes not using useD3 hook*
 	let dimensions = {width: 500, height: 500};
@@ -141,7 +141,7 @@ const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight:
 					update.call(update => {
 						update.filter((d, i) => {return i !== highlightedPos})
 							.attr("fill", colors.bar);
-						update.transition(svg.transition().duration(750))
+						update.transition(svg.transition().duration(animSpeed))
 							.attr("x", (d, i) => x(d + "-" + i))
 							.attr("width", x.bandwidth())
 							.attr("y", d => y(d))
@@ -161,7 +161,7 @@ const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight:
 			else {
 				axis.selectAll("text").attr("fill", colors.axis);
 				axis.transition()
-					.duration(750)
+					.duration(animSpeed)
 					.call(d3.axisBottom(x).ticks(dimensions.current.width / 80).tickSizeOuter(0).tickFormat((d) => { return d.split("-")[0] }))
 					.selectAll("text").attr("fill", colors.axis);
 			}

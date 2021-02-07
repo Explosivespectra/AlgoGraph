@@ -1,11 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { BarGraph } from './d3/BarGraph';
-import { Button, IconButton, AppBar, Toolbar, Dialog, DialogTitle, DialogActions, DialogContent, Menu, MenuItem, Slider, Typography, Grid } from '@material-ui/core'
+import { Button, IconButton, AppBar, Toolbar, Dialog, DialogTitle, DialogActions, DialogContent, Menu, MenuItem, Slider, Switch, FormControlLabel, Typography, Grid, Tooltip } from '@material-ui/core'
 import TuneIcon from '@material-ui/icons/Tune';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import ColorLensIcon from '@material-ui/icons/ColorLens';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { useTheme, makeStyles } from '@material-ui/core/styles';
-import { useInterval } from '../hooks/useInterval'
+import { useInterval } from '../hooks/useInterval';
 
 const useStyles = makeStyles(theme => ({
 
@@ -108,6 +111,49 @@ const callSortStep = (arr, param, sortType) => {
   return (sortStep[sortType])(arr, param);
 }
 
+const SettingsDialog = ({defSpeed, defOrder, isOpen, handleClose, handleConfirm}) => {
+
+  const [speed, setSpeed] = useState(defSpeed);
+  const [order, setOrder] = useState(defOrder);
+
+  const marks = [
+    {
+      value: 100,
+      label: ".1 sec",
+    },
+    {
+      value: 1000,
+      label: "1 sec",
+    }
+  ]
+
+  const close = () => {
+    setSpeed(defSpeed);
+    setOrder(defOrder);
+    handleClose();
+  }
+
+
+  return (
+    <Dialog open={isOpen} onClose={close}>
+      <DialogTitle>Settings</DialogTitle>
+      <DialogContent>
+        <Typography gutterBottom>Sorting Order</Typography>
+        <FormControlLabel
+          control={<Switch color="primary" checked={order} onChange={(event) => {setOrder(event.target.checked)}}></Switch>}
+          label={order ? "Ascending" : "Descending"}
+        />
+        <Typography gutterBottom>Sorting Interval</Typography>
+        <Slider defaultValue={defSpeed} value={speed} min={100} max={1000} onChange={(event, newValue) => { setSpeed(newValue) }} scale={(x) => {return x / 1000}} marks={marks} valueLabelDisplay="auto"/>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={close}>Cancel</Button>
+				<Button onClick={() => { handleConfirm(speed, order) }}>Confirm</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 const NumberDialog = ({ defRange, defCount, isOpen, handleClose, handleConfirm }) => {
 
 	const [range, setRange] = useState(defRange);
@@ -156,10 +202,13 @@ const BodyContent = ({styles, setStyle}) => {
 	const [count, setCount] = useState(15)
 	const [numDialogOpen, setNumDialog] = useState(false);
   const [styleDialogOpen, setStyleDialog] = useState(false);
+  const [settingsDialogOpen, setSettingsDialog] = useState(false);
   const [sortMenuAnchor, setSortMenu] = useState(null);
   const [sortType, setSortType] = useState("insertion");
   const [sortIndex, setSortIndex] = useState(0);
   const [tick, setTick] = useState(0);
+  const [tickSpeed, setTickSpeed] = useState(100);
+  const [order, setOrder] = useState(true);
 
   const originalData = useRef([...dummyData]);
   const sortInfo = useRef({...(sortParam.insertion)});
@@ -174,10 +223,23 @@ const BodyContent = ({styles, setStyle}) => {
 		setCount(newCount);
 	}
 
+  const setSettings = (newSpeed, newOrder) => {
+    setSettingsDialog(false);
+    if (order !== newOrder ) {
+      resetInterval();
+      setDummy(originalData.current);
+      setOrder(newOrder);
+    }
+    setTickSpeed(newSpeed);
+    if (tick !== 0) {
+      setTick(newSpeed);
+    }
+  }
+
   const startInterval = () => {
     if (!sortInfo.current.completed) {
       highlightedPos.current = sortInfo.current.pos;
-      setTick(900);
+      setTick(tickSpeed);
     }
   }
 
@@ -195,8 +257,8 @@ const BodyContent = ({styles, setStyle}) => {
       setDummy(result.arr);
     }
     else {
-      setTick(0);
       highlightedPos.current = null;
+      setTick(0);
     }
   }, tick);
 
@@ -204,9 +266,11 @@ const BodyContent = ({styles, setStyle}) => {
 		<>
 			<AppBar position="fixed">
 				<Toolbar>
-					<IconButton color="inherit" onClick={(event) => { setSortMenu(event.currentTarget) }}>
-						<BarChartIcon />
-					</IconButton>
+          <Tooltip title="Sorts">
+            <IconButton color="inherit" onClick={(event) => { setSortMenu(event.currentTarget) }}>
+              <BarChartIcon />
+            </IconButton>
+          </Tooltip>
           <Menu 
             keepmounted open={Boolean(sortMenuAnchor)} 
             anchorEl={sortMenuAnchor}
@@ -220,12 +284,21 @@ const BodyContent = ({styles, setStyle}) => {
               )
             })}
           </Menu>
-					<IconButton color="inherit" onClick={() => { setNumDialog(true) }}>
-						<TuneIcon />
-					</IconButton>
-					<IconButton color="inherit" onClick={() => { setStyleDialog(true) }}>
-						<ColorLensIcon />
-					</IconButton>
+          <Tooltip title="Number Generation Settings">
+            <IconButton color="inherit" onClick={() => { setNumDialog(true) }}>
+              <TuneIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Themes">
+            <IconButton color="inherit" onClick={() => { setStyleDialog(true) }}>
+              <ColorLensIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Settings">
+            <IconButton color="inherit" onClick={() => { setSettingsDialog(true)}}>
+              <SettingsIcon/>
+            </IconButton>
+          </Tooltip>
 				</Toolbar>
 			</AppBar>
 			<Toolbar />
@@ -236,20 +309,28 @@ const BodyContent = ({styles, setStyle}) => {
               <Button onClick={() => { resetInterval(); let newData = randomData(range, count); setDummy(newData); originalData.current = [...newData] }} variant="contained" color="primary">Randomize</Button>
 						</Grid>
 						<Grid item>
-							<Button onClick={() => { resetInterval(); let newData = [...dummyData]; setDummy(newData.sort((a, b) => a - b)) }} variant="contained" color="primary">Sort</Button>
+							<Button onClick={() => { resetInterval(); let newData = [...dummyData]; setDummy(newData.sort((a, b) => a - b)); sortInfo.current.completed = true }} variant="contained" color="primary">Finish Sort</Button>
+						</Grid>
+            <Grid item>
+							<Button onClick={() => { resetInterval(); setDummy(originalData.current)}} variant="contained" color="primary">Reset Sort</Button>
 						</Grid>
 						<Grid item>
-							<Button onClick={() => {(tick === 0) ? (startInterval()) : (setTick(0))}} variant="contained" color="primary">Begin Sort</Button>
+              <Tooltip title={(tick === 0) ? ("Play Sort") : ("Pause Sort")}>
+                <IconButton onClick={() => {(tick === 0) ? (startInterval()) : (setTick(0))}} color="primary">
+                  {(tick === 0) ? <PlayCircleFilledIcon/> : <PauseCircleFilledIcon/>}
+                </IconButton>
+              </Tooltip>
 						</Grid>		
 					</Grid>
 				</Grid>
 				<Grid item>
 					<BarGraph
-						data={dummyData} colors={{ axis: theme.palette.primary.main, bar: theme.palette.primary.main, highlight: theme.palette.primary.light }} highlightedPos = {highlightedPos.current} />
+						data={dummyData} colors={{ axis: theme.palette.primary.main, bar: theme.palette.primary.main, highlight: theme.palette.primary.light }} highlightedPos = {highlightedPos.current} animSpeed = {tickSpeed * .75}/>
 				</Grid>
 			</Grid>
 			<NumberDialog defRange={range} defCount={count} isOpen={numDialogOpen} handleClose={() => { setNumDialog(false) }} handleConfirm={setNumbers} />
 			<StyleDialog styles={styles} setStyle={(styleName) => {setStyle(styleName)}} isOpen={styleDialogOpen} handleClose={() => { setStyleDialog(false)}}/>
+      <SettingsDialog defSpeed={tickSpeed} defOrder={order} isOpen={settingsDialogOpen} handleClose={() => { setSettingsDialog(false) }} handleConfirm={setSettings}/>
 		</>
 	) 
 }
