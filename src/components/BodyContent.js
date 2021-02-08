@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { BarGraph } from './d3/BarGraph';
 import { Button, IconButton, AppBar, Toolbar, Dialog, DialogTitle, DialogActions, DialogContent, Menu, MenuItem, Slider, Switch, FormControlLabel, Typography, Grid, Tooltip } from '@material-ui/core'
 import TuneIcon from '@material-ui/icons/Tune';
@@ -7,16 +7,8 @@ import ColorLensIcon from '@material-ui/icons/ColorLens';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { useTheme, makeStyles } from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core/styles';
 import { useInterval } from '../hooks/useInterval';
-
-const useStyles = makeStyles(theme => ({
-
-}));
-
-const createAscOrDesc = (sort) => {
- return (sort) ? ( (a,b) => {return a < b} ) : ((a,b) => {return a > b} )
-}
 
 const randomData = (range, count) => {
   let len = count;
