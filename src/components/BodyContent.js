@@ -326,7 +326,7 @@ const BodyContent = ({styles, setStyle}) => {
               <Button onClick={() => { let newData = randomData(range, count); resetInterval(); setDummy(newData); originalData.current = [...newData] }} variant="contained" color="primary">Randomize</Button>
 						</Grid>
 						<Grid item>
-							<Button onClick={() => { let newData = [...dummyData]; resetInterval(...Array(2),newData); setDummy(newData.sort((a, b) => a - b)); sortInfo.current.completed = true }} variant="contained" color="primary">Finish Sort</Button>
+							<Button onClick={() => { let newData = [...dummyData]; resetInterval(...Array(2),newData); setDummy(newData.sort(order ? (a, b) => a - b : (a, b) => b - a)); sortInfo.current.completed = true }} variant="contained" color="primary">Finish Sort</Button>
 						</Grid>
             <Grid item>
 							<Button onClick={() => { resetInterval(); setDummy(originalData.current)}} variant="contained" color="primary">Reset Sort</Button>
