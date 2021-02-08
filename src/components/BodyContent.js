@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { BarGraph } from './d3/BarGraph';
 import { Button, IconButton, AppBar, Toolbar, Dialog, DialogTitle, DialogActions, DialogContent, Menu, MenuItem, Slider, Switch, FormControlLabel, Typography, Grid, Tooltip } from '@material-ui/core'
 import TuneIcon from '@material-ui/icons/Tune';
@@ -14,6 +14,10 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
+const createAscOrDesc = (sort) => {
+ return (sort) ? ( (a,b) => {return a < b} ) : ((a,b) => {return a > b} )
+}
+
 const randomData = (range, count) => {
   let len = count;
   return [...Array(len).keys()].map((num) => {
@@ -25,73 +29,77 @@ const sortParam = {
   insertion: {
     pos: 1,
     ind: 1,
+    step: 1,
     completed: false,
   },
   selection: {
     pos: 0,
     posSmall: 0,
     ind: 0,
+    step: 1,
     completed: false,
   },
   bubble: {
     pos: 0,
+    step: 1,
+    sorted: 0,
     changes: false,
     completed: false,
   }
 }
 
 const insertionStep = (arr, param) => {
-  if ( param.pos > 0 && arr[param.pos] < arr[param.pos - 1]) {
-    let copy = arr[param.pos - 1];
-    arr[param.pos - 1] = arr[param.pos];
+  if ((param.pos - param.step > -1  && param.pos - param.step < arr.length) && arr[param.pos] < arr[param.pos - param.step]) {
+    let copy = arr[param.pos - param.step];
+    arr[param.pos - param.step] = arr[param.pos];
     arr[param.pos] = copy;
-    param.pos--;
+    param.pos = param.pos - param.step;
   }
   else {
-    param.ind = param.ind + 1;
+    param.ind = param.ind + param.step;
     param.pos = param.ind;
   }
-  if (param.ind >= arr.length) {
+  if ((param.ind >= arr.length && param.step === 1) || (param.ind < 0 && param.step === -1)) {
     param.completed = true;
   }
   return {arr, param};
 }
 
 const selectionStep = (arr, param) => {
-  console.log(param);
-  if (param.pos < arr.length) {  
-    if ( arr[param.pos] < arr[param.posSmall]) {
+  if (param.pos < arr.length && param.pos > -1) {  
+    if (arr[param.pos] < arr[param.posSmall]) {
       param.posSmall = param.pos;
     }
-    param.pos = param.pos + 1;
+    param.pos = param.pos + param.step;
   }
   else {
     let copy = arr[param.ind];
     arr[param.ind] = arr[param.posSmall];
     arr[param.posSmall] = copy;
-    param.ind = param.ind + 1;
+    param.ind = param.ind + param.step;
     param.posSmall = param.ind;
     param.pos = param.ind;
   }
-  if ( param.ind >= arr.length - 1) {
+  if ((param.ind >= arr.length - 1 && param.step === 1) || (param.ind <= 0 && param.step === -1)) {
     param.completed = true;
   }
   return {arr, param};
 }
 
 const bubbleStep = (arr, param) => {
-  if (param.pos < arr.length - 1) {
-    if (arr[param.pos] > arr[param.pos + 1]) {
+  if ((param.pos < arr.length - 1 - param.sorted && param.step === 1) || (param.pos > 0 + param.sorted && param.step === -1)) {
+    if (arr[param.pos + param.step] <arr[param.pos]) {
       param.changes = true;
-      let copy = arr[param.pos + 1];
-      arr[param.pos + 1] = arr[param.pos];
+      let copy = arr[param.pos + param.step];
+      arr[param.pos + param.step] = arr[param.pos];
       arr[param.pos] = copy;
     }
-    param.pos += 1;
+    param.pos += param.step;
   }
   else {
     if (param.changes) {
-      param.pos = 0;
+      param.sorted += 1;
+      param.pos = (param.step === 1) ? 0 : arr.length - 1;
       param.changes = false;
     }
     else {
@@ -190,9 +198,6 @@ const StyleDialog = ({styles, setStyle, isOpen, handleClose}) => {
 					return (<Button key={styleName} onClick={() => {setStyle(styleName)}}>{styleName}</Button>)
 				})}
 			</DialogContent>
-			<DialogActions>
-
-			</DialogActions>
 		</Dialog>
 	)
 }
@@ -226,12 +231,12 @@ const BodyContent = ({styles, setStyle}) => {
   const setSettings = (newSpeed, newOrder) => {
     setSettingsDialog(false);
     if (order !== newOrder ) {
-      resetInterval();
+      resetInterval(undefined, newOrder);
       setDummy(originalData.current);
       setOrder(newOrder);
     }
     setTickSpeed(newSpeed);
-    if (tick !== 0) {
+    if (order === newOrder && tick !== 0) {
       setTick(newSpeed);
     }
   }
@@ -243,15 +248,27 @@ const BodyContent = ({styles, setStyle}) => {
     }
   }
 
-  const resetInterval = () => {
+  const resetInterval = (newInfo={...(sortParam[sortType])}, ord=order, data=originalData.current) => {
     setTick(0);
-    sortInfo.current = {...(sortParam[sortType])};
+    if (!ord) {
+      let specials = ["pos", "posSmall", "ind"]
+      Object.keys(newInfo).forEach((key) => {
+        if (specials.includes(key)) {
+          newInfo[key] = data.length - newInfo[key] - 1;
+        }
+        else if (key === "step") {
+          newInfo[key] = newInfo[key] * -1;
+        }
+      });
+      console.log(newInfo);
+    }
+    sortInfo.current = newInfo;
     highlightedPos.current = null;
   }
 
   useInterval(() => {
     if (!sortInfo.current.completed) {
-      let result = callSortStep([...dummyData],sortInfo.current,sortType);
+      let result = callSortStep([...dummyData], sortInfo.current, sortType);
       sortInfo.current = result.param;
       highlightedPos.current = sortInfo.current.pos;
       setDummy(result.arr);
@@ -278,7 +295,7 @@ const BodyContent = ({styles, setStyle}) => {
           >
             {Object.keys(sortParam).map((sort, index) => {
               return (
-                <MenuItem key={sort} selected={index === sortIndex} onClick={() => { resetInterval(); setSortType(sort); setSortIndex(index); setDummy(originalData.current); sortInfo.current = {...(sortParam[sort])} }}>
+                <MenuItem key={sort} selected={index === sortIndex} onClick={() => { resetInterval({...(sortParam[sort])}); setSortType(sort); setSortIndex(index); setDummy(originalData.current) }}>
                   {sort}
                 </MenuItem>
               )
@@ -306,10 +323,10 @@ const BodyContent = ({styles, setStyle}) => {
 				<Grid item>
 					<Grid container direction="column" justify="center" alignItems="center" spacing={1}>
 						<Grid item>
-              <Button onClick={() => { resetInterval(); let newData = randomData(range, count); setDummy(newData); originalData.current = [...newData] }} variant="contained" color="primary">Randomize</Button>
+              <Button onClick={() => { let newData = randomData(range, count); resetInterval(); setDummy(newData); originalData.current = [...newData] }} variant="contained" color="primary">Randomize</Button>
 						</Grid>
 						<Grid item>
-							<Button onClick={() => { resetInterval(); let newData = [...dummyData]; setDummy(newData.sort((a, b) => a - b)); sortInfo.current.completed = true }} variant="contained" color="primary">Finish Sort</Button>
+							<Button onClick={() => { let newData = [...dummyData]; resetInterval(...Array(2),newData); setDummy(newData.sort((a, b) => a - b)); sortInfo.current.completed = true }} variant="contained" color="primary">Finish Sort</Button>
 						</Grid>
             <Grid item>
 							<Button onClick={() => { resetInterval(); setDummy(originalData.current)}} variant="contained" color="primary">Reset Sort</Button>

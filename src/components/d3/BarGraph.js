@@ -117,8 +117,6 @@ const BarGraph = ({ data, colors = { axis: "black", bar: "steelblue", highlight:
 			const updateRect = svg.selectAll('rect')
 				.data(data);
 
-			console.log(highlightedPos);
-
 			if (highlightedPos !== null && !(updateRect.empty())) {
 				updateRect.filter((d, i) => {return i === highlightedPos})
 					.attr("fill", colors.highlight);
