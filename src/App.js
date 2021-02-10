@@ -12,7 +12,7 @@ const App = () => {
   return (
     <ThemeProvider theme={createMuiTheme(currentStyle)}>
       <CssBaseline/>
-      <Container>
+      <Container maxWidth={false}>
         <BodyContent styles={styles} setStyle={(styleName) => {setStyle(styles[styleName])}}/>
       </Container>
     </ThemeProvider>

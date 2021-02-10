@@ -311,7 +311,7 @@ const BodyContent = ({styles, setStyle}) => {
 				</Toolbar>
 			</AppBar>
 			<Toolbar />
-			<Grid container direction="row" justify="space-evenly" alignItems="center">
+			<Grid container direction="row" justify="space-evenly" alignItems="center" spacing={1}>
 				<Grid item>
 					<Grid container direction="column" justify="center" alignItems="center" spacing={1}>
 						<Grid item>
@@ -336,6 +336,16 @@ const BodyContent = ({styles, setStyle}) => {
 					<BarGraph
 						data={dummyData} colors={{ axis: theme.palette.primary.main, bar: theme.palette.primary.main, highlight: theme.palette.primary.light }} highlightedPos = {highlightedPos.current} animSpeed = {tickSpeed * .75}/>
 				</Grid>
+        <Grid item>
+          <Grid container container direction="column" justify="center" alignItems="center" spacing={1}>
+            <Grid item>
+              <Typography variant="h1">Insertion</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body1">This is insertion</Typography>
+            </Grid>
+          </Grid>
+        </Grid>
 			</Grid>
 			<NumberDialog defRange={range} defCount={count} isOpen={numDialogOpen} handleClose={() => { setNumDialog(false) }} handleConfirm={setNumbers} />
 			<StyleDialog styles={styles} setStyle={(styleName) => {setStyle(styleName)}} isOpen={styleDialogOpen} handleClose={() => { setStyleDialog(false)}}/>
