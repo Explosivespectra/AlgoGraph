@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/AlgoGraph/static/css/main.6dea0f05.chunk.css",
+    "main.js": "/AlgoGraph/static/js/main.e8931aed.chunk.js",
+    "main.js.map": "/AlgoGraph/static/js/main.e8931aed.chunk.js.map",
+    "runtime-main.js": "/AlgoGraph/static/js/runtime-main.f98cf812.js",
+    "runtime-main.js.map": "/AlgoGraph/static/js/runtime-main.f98cf812.js.map",
+    "static/js/2.8cd59541.chunk.js": "/AlgoGraph/static/js/2.8cd59541.chunk.js",
+    "static/js/2.8cd59541.chunk.js.map": "/AlgoGraph/static/js/2.8cd59541.chunk.js.map",
+    "static/js/3.fae5f0fc.chunk.js": "/AlgoGraph/static/js/3.fae5f0fc.chunk.js",
+    "static/js/3.fae5f0fc.chunk.js.map": "/AlgoGraph/static/js/3.fae5f0fc.chunk.js.map",
+    "index.html": "/AlgoGraph/index.html",
+    "static/css/main.6dea0f05.chunk.css.map": "/AlgoGraph/static/css/main.6dea0f05.chunk.css.map",
+    "static/js/2.8cd59541.chunk.js.LICENSE.txt": "/AlgoGraph/static/js/2.8cd59541.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f98cf812.js",
+    "static/js/2.8cd59541.chunk.js",
+    "static/css/main.6dea0f05.chunk.css",
+    "static/js/main.e8931aed.chunk.js"
+  ]
+}
