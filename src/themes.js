@@ -19,6 +19,7 @@ const styles = {
             },
             text: {
                 primary: "#e2b714",
+                secondary: "#212121"
             },
           },
     },

@@ -18,20 +18,20 @@ const randomData = (range, count) => {
 }
 
 const sortParam = {
-  insertion: {
+  Insertion: {
     pos: 1,
     ind: 1,
     step: 1,
     completed: false,
   },
-  selection: {
+  Selection: {
     pos: 0,
     posSmall: 0,
     ind: 0,
     step: 1,
     completed: false,
   },
-  bubble: {
+  Bubble: {
     pos: 0,
     step: 1,
     sorted: 0,
@@ -201,7 +201,7 @@ const BodyContent = ({styles, setStyle}) => {
   const [styleDialogOpen, setStyleDialog] = useState(false);
   const [settingsDialogOpen, setSettingsDialog] = useState(false);
   const [sortMenuAnchor, setSortMenu] = useState(null);
-  const [sortType, setSortType] = useState("insertion");
+  const [sortType, setSortType] = useState("Insertion");
   const [sortIndex, setSortIndex] = useState(0);
   const [tick, setTick] = useState(0);
   const [tickSpeed, setTickSpeed] = useState(100);
@@ -339,10 +339,10 @@ const BodyContent = ({styles, setStyle}) => {
         <Grid item>
           <Grid container container direction="column" justify="center" alignItems="center" spacing={1}>
             <Grid item>
-              <Typography variant="h1">Insertion</Typography>
+              <Typography variant="h1">{sortType}</Typography>
             </Grid>
             <Grid item>
-              <Typography variant="body1">This is insertion</Typography>
+              <Typography variant="body1">This is {sortType}</Typography>
             </Grid>
           </Grid>
         </Grid>
