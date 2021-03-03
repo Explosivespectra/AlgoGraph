@@ -102,9 +102,9 @@ const bubbleStep = (arr, param) => {
 }
 
 const sortStep = {
-  insertion: (arr, param) => {return insertionStep(arr, param)},
-  selection: (arr, param) => {return selectionStep(arr, param)},
-  bubble: (arr, param) => {return bubbleStep(arr, param)},
+  Insertion: (arr, param) => {return insertionStep(arr, param)},
+  Selection: (arr, param) => {return selectionStep(arr, param)},
+  Bubble: (arr, param) => {return bubbleStep(arr, param)},
 }
 
 const callSortStep = (arr, param, sortType) => {
@@ -208,7 +208,7 @@ const BodyContent = ({styles, setStyle}) => {
   const [order, setOrder] = useState(true);
 
   const originalData = useRef([...dummyData]);
-  const sortInfo = useRef({...(sortParam.insertion)});
+  const sortInfo = useRef({...(sortParam.Insertion)});
   const highlightedPos = useRef(null);
 
 	const theme = useTheme();
