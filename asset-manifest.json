@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/AlgoGraph/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/AlgoGraph/static/js/main.e8931aed.chunk.js",
-    "main.js.map": "/AlgoGraph/static/js/main.e8931aed.chunk.js.map",
+    "main.js": "/AlgoGraph/static/js/main.ce57d32e.chunk.js",
+    "main.js.map": "/AlgoGraph/static/js/main.ce57d32e.chunk.js.map",
     "runtime-main.js": "/AlgoGraph/static/js/runtime-main.f98cf812.js",
     "runtime-main.js.map": "/AlgoGraph/static/js/runtime-main.f98cf812.js.map",
     "static/js/2.8cd59541.chunk.js": "/AlgoGraph/static/js/2.8cd59541.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.f98cf812.js",
     "static/js/2.8cd59541.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.e8931aed.chunk.js"
+    "static/js/main.ce57d32e.chunk.js"
   ]
 }
